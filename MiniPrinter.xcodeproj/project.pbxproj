@@ -8,17 +8,22 @@
 
 /* Begin PBXBuildFile section */
 		1420B0202A89B63B0048621D /* MiniPrinterApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1420B01F2A89B63B0048621D /* MiniPrinterApp.swift */; };
-		1420B0222A89B63B0048621D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1420B0212A89B63B0048621D /* ContentView.swift */; };
 		1420B0242A89B63D0048621D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1420B0232A89B63D0048621D /* Assets.xcassets */; };
 		1420B0272A89B63D0048621D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1420B0262A89B63D0048621D /* Preview Assets.xcassets */; };
+		1420B02E2A89BD940048621D /* BluetoothSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1420B02D2A89BD940048621D /* BluetoothSearchView.swift */; };
+		1420B0332A89D8320048621D /* BTSearchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1420B0322A89D8320048621D /* BTSearchManager.swift */; };
+		1420B0362A89FD940048621D /* BluetoothDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1420B0352A89FD940048621D /* BluetoothDevice.swift */; };
+		14F455842A8A11D8006255D2 /* BlueSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 14F455832A8A11D8006255D2 /* BlueSwift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		1420B01C2A89B63B0048621D /* MiniPrinter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MiniPrinter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1420B01F2A89B63B0048621D /* MiniPrinterApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPrinterApp.swift; sourceTree = "<group>"; };
-		1420B0212A89B63B0048621D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1420B0232A89B63D0048621D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1420B0262A89B63D0048621D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		1420B02D2A89BD940048621D /* BluetoothSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothSearchView.swift; sourceTree = "<group>"; };
+		1420B0322A89D8320048621D /* BTSearchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BTSearchManager.swift; sourceTree = "<group>"; };
+		1420B0352A89FD940048621D /* BluetoothDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothDevice.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -26,6 +31,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				14F455842A8A11D8006255D2 /* BlueSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -52,9 +58,11 @@
 			isa = PBXGroup;
 			children = (
 				1420B01F2A89B63B0048621D /* MiniPrinterApp.swift */,
-				1420B0212A89B63B0048621D /* ContentView.swift */,
 				1420B0232A89B63D0048621D /* Assets.xcassets */,
 				1420B0252A89B63D0048621D /* Preview Content */,
+				1420B02D2A89BD940048621D /* BluetoothSearchView.swift */,
+				1420B0322A89D8320048621D /* BTSearchManager.swift */,
+				1420B0352A89FD940048621D /* BluetoothDevice.swift */,
 			);
 			path = MiniPrinter;
 			sourceTree = "<group>";
@@ -83,6 +91,9 @@
 			dependencies = (
 			);
 			name = MiniPrinter;
+			packageProductDependencies = (
+				14F455832A8A11D8006255D2 /* BlueSwift */,
+			);
 			productName = MiniPrinter;
 			productReference = 1420B01C2A89B63B0048621D /* MiniPrinter.app */;
 			productType = "com.apple.product-type.application";
@@ -111,6 +122,9 @@
 				Base,
 			);
 			mainGroup = 1420B0132A89B63B0048621D;
+			packageReferences = (
+				14F455822A8A11D8006255D2 /* XCRemoteSwiftPackageReference "BlueSwift" */,
+			);
 			productRefGroup = 1420B01D2A89B63B0048621D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -137,8 +151,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1420B0222A89B63B0048621D /* ContentView.swift in Sources */,
 				1420B0202A89B63B0048621D /* MiniPrinterApp.swift in Sources */,
+				1420B02E2A89BD940048621D /* BluetoothSearchView.swift in Sources */,
+				1420B0362A89FD940048621D /* BluetoothDevice.swift in Sources */,
+				1420B0332A89D8320048621D /* BTSearchManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -270,11 +286,13 @@
 				DEVELOPMENT_TEAM = GSH6P3Q8U8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "搜索和连接MINI打印机蓝牙";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -299,11 +317,13 @@
 				DEVELOPMENT_TEAM = GSH6P3Q8U8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "搜索和连接MINI打印机蓝牙";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -339,6 +359,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		14F455822A8A11D8006255D2 /* XCRemoteSwiftPackageReference "BlueSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/netguru/BlueSwift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		14F455832A8A11D8006255D2 /* BlueSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 14F455822A8A11D8006255D2 /* XCRemoteSwiftPackageReference "BlueSwift" */;
+			productName = BlueSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1420B0142A89B63B0048621D /* Project object */;
 }

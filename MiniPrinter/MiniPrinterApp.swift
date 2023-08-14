@@ -11,7 +11,7 @@ import SwiftUI
 struct MiniPrinterApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            BluetoothSearchView()
         }
     }
 }
