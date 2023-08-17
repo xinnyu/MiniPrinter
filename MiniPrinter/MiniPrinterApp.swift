@@ -6,12 +6,13 @@
 //
 
 import SwiftUI
+import JGProgressHUD_SwiftUI
 
 @main
 struct MiniPrinterApp: App {
     var body: some Scene {
         WindowGroup {
-            BluetoothSearchView()
+            HomeContainer.shared
         }
     }
 }

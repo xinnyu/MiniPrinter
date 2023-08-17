@@ -10,6 +10,13 @@ import CoreBluetooth
 import Combine
 import SwiftUI
 
+struct BTMacro {
+    static let serviceUUID = CBUUID(string: "4fafc201-1fb5-459e-8fcc-c5c9c331914b")
+    static let characteristicUUID = CBUUID(string: "beb5483e-36e1-4688-b7f5-ea07361b26a8")
+    static let deviceName = "Mini-Printer"
+    static let searchSeconds = 5
+}
+
 extension CBPeripheral {
     func estimateDistance(rssi: Double, txPower: Int = -59) -> Double {
         if rssi == 0 {
@@ -26,21 +33,60 @@ extension CBPeripheral {
     }
 }
 
+enum ConnectionStatus {
+    case none
+    case connecting
+    case connected
+    case failed
+    case timedOut
+}
+
+// MARK: - Error Handling
+
+enum BTError: Error {
+    case bluetoothOff
+}
+
 class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, ObservableObject {
     
-    static let searchSeconds = 5
-    
+    static let `default` = BTSearchManager()
+
     private var centralManager: CBCentralManager!
+    /// 搜索用的 timer，倒计时
     private var timer: Timer?
     
+    /// 如果10秒钟没有收到消息，就算已经失去连接
+    private var disconnectTimer: DispatchSourceTimer?
+
     @Published private(set) var discoveredPeripherals: [CBPeripheral] = []
+    
+    @Published var connectionStatus: ConnectionStatus = .none
+    
+    @Published var connectedPeripheral: CBPeripheral?
+    
     @Published var isSearching = false
-    @Published var remainingSeconds = searchSeconds
+    @Published var remainingSeconds = BTMacro.searchSeconds
     @Published var distanceDict = [UUID : Double]()
 
     static let connectionStateDidChangeNotification = Notification.Name("connectionStateDidChange")
 
-    override init() {
+    
+    // 假设您已经找到了要写入的特征
+    var writeCharacteristic: CBCharacteristic?
+    
+    // 发送数据到设备
+    func sendData(data: Data) {
+        if let characteristic = writeCharacteristic {
+            // 确保该特征允许写入
+            if characteristic.properties.contains(.write) {
+                connectedPeripheral?.writeValue(data, for: characteristic, type: .withResponse)
+            } else if characteristic.properties.contains(.writeWithoutResponse) {
+                connectedPeripheral?.writeValue(data, for: characteristic, type: .withoutResponse)
+            }
+        }
+    }
+    
+    private override init() {
         super.init()
         centralManager = CBCentralManager(delegate: self, queue: nil)
     }
@@ -52,7 +98,7 @@ class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate,
         }
         if !isSearching {
             self.isSearching = true
-            self.remainingSeconds = BTSearchManager.searchSeconds
+            self.remainingSeconds = BTMacro.searchSeconds
             timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
                 self.updateCountdown()
             }
@@ -65,10 +111,14 @@ class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate,
     }
 
     // 连接某个设备
-    func connectToDevice(_ peripheral: CBPeripheral) async throws {
+    func connectToDevice(_ peripheral: CBPeripheral) throws {
+        resetDisconnectTimer()
+        connectionStatus = .connecting
         guard centralManager.state == .poweredOn else {
+            connectionStatus = .failed
             throw BTError.bluetoothOff
         }
+        self.connectedPeripheral = nil
         centralManager.connect(peripheral, options: nil)
     }
     
@@ -83,6 +133,24 @@ class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate,
         }
     }
 
+    func handleTimeout() {
+        print("Device disconnected due to timeout")
+        self.connectedPeripheral = nil
+        if connectionStatus != .failed {
+            connectionStatus = .timedOut
+        }
+    }
+    
+    private func resetDisconnectTimer() {
+        disconnectTimer?.cancel()
+        disconnectTimer = DispatchSource.makeTimerSource(queue: DispatchQueue.main)
+        disconnectTimer?.schedule(deadline: .now() + 15)
+        disconnectTimer?.setEventHandler { [weak self] in
+            self?.handleTimeout()
+        }
+        disconnectTimer?.resume()
+    }
+
     // MARK: - CBCentralManagerDelegate
 
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
@@ -95,34 +163,91 @@ class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate,
             peripheral.delegate = self
             // 存储距离到字典中
             self.distanceDict[peripheral.identifier] = distance
-            // 根据距离找到正确的插入位置
-            if let insertIndex = discoveredPeripherals.firstIndex(where: { distanceDict[$0.identifier] ?? .infinity > distance }) {
-                discoveredPeripherals.insert(peripheral, at: insertIndex)
+            // 如果设备名称匹配, 直接放在第一位
+            if peripheral.name == BTMacro.deviceName {
+                discoveredPeripherals.insert(peripheral, at: 0)
             } else {
-                discoveredPeripherals.append(peripheral)
+                // 根据距离找到正确的插入位置
+                if let insertIndex = discoveredPeripherals.firstIndex(where: { distanceDict[$0.identifier] ?? .infinity > distance }) {
+                    discoveredPeripherals.insert(peripheral, at: insertIndex)
+                } else {
+                    discoveredPeripherals.append(peripheral)
+                }
             }
         }
     }
 
-
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        // 开始发现指定的服务，如果您不确定要发现的服务的UUID，可以传递nil来发现所有服务
+        peripheral.discoverServices([BTMacro.serviceUUID])
         NotificationCenter.default.post(name: BTSearchManager.connectionStateDidChangeNotification, object: peripheral)
     }
 
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        if peripheral == self.connectedPeripheral {
+            self.connectedPeripheral = nil
+            connectionStatus = .failed
+        }
         NotificationCenter.default.post(name: BTSearchManager.connectionStateDidChangeNotification, object: peripheral)
     }
     
     // MARK: ------- CBPeripheralDelegate -------
     
-    func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?) {
-        let distance = peripheral.estimateDistance(rssi: RSSI.doubleValue)
-        self.distanceDict[peripheral.identifier] = distance
+    // 发现服务后调用
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+        guard error == nil else {
+            print("Error discovering services: \(error!)")
+            connectionStatus = .failed
+            return
+        }
+        peripheral.services?.forEach { service in
+            print("Found service: \(service)")
+            if service.uuid == BTMacro.serviceUUID {
+                // 对于每个服务，发现它的特征
+                peripheral.discoverCharacteristics(nil, for: service)
+            }
+        }
     }
-
-    // MARK: - Error Handling
-
-    enum BTError: Error {
-        case bluetoothOff
+    
+    // 发现特征后调用
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+        for characteristic in service.characteristics! {
+            print("Found characteristic: \(characteristic)")
+            if characteristic.uuid == BTMacro.characteristicUUID {
+                self.writeCharacteristic = characteristic
+                // 如果这是您想读取的特征，或者您想监听的特征
+                if characteristic.properties.contains(.read) {
+                    // 读取特征的值
+                    peripheral.readValue(for: characteristic)
+                }
+                if characteristic.properties.contains(.notify) {
+                    // 为该特征设置通知以便在值更改时接收更新
+                    peripheral.setNotifyValue(true, for: characteristic)
+                }
+            }
+        }
     }
+    
+    // 当读取特征值或监听到特征值改变时调用
+    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        if let data = characteristic.value, characteristic.uuid == BTMacro.characteristicUUID {
+            // 对数据进行处理, 只有读取到了值才算连接成功
+            self.connectedPeripheral = peripheral
+            connectionStatus = .connected
+            print("xy-log 取到了值 connectionStatus \(connectionStatus)")
+            // 每次收到消息时，发送到subject，这将重置debounce的计时器
+            resetDisconnectTimer()
+            print("Received data battery: \(data[0]), temperature: \(data[1]), paper_warn: \(data[2]), work_status: \(data[3])")
+        }
+    }
+    
+    // 当写操作完成后调用，您可以检查是否有错误
+    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+        if let error = error {
+            print("Error writing characteristic: \(error)")
+        } else {
+            print("Successfully wrote value for characteristic: \(characteristic)")
+        }
+    }
+    
 }
