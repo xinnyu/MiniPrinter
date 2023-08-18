@@ -17,68 +17,50 @@ extension Bool {
     }
 }
 
-class PrinterInfoViewModel: ObservableObject {
-    @Published var printerInfo: PrinterInfoModel = PrinterInfoModel(connectionStatus: true, workingStatus: true, paperStatus: true, battery: 0, temperature: 0)
-}
-
-struct PrinterInfoView: View {
-    @StateObject var viewModel = PrinterInfoViewModel()
-    
-    var body: some View {
-        // 打印机状态信息
-        HStack {
-            CircleStatusIndicator(label: "连接", status: viewModel.printerInfo.connectionStatus.status)
-            Spacer()
-            CircleStatusIndicator(label: "工作", status: viewModel.printerInfo.workingStatus.status)
-            Spacer()
-            CircleStatusIndicator(label: "缺纸", status: viewModel.printerInfo.paperStatus.status)
-            Spacer()
-            StatusIndicator(label: "电量", value: "\(viewModel.printerInfo.battery)%")
-            Spacer()
-            StatusIndicator(label: "温度", value: "\(viewModel.printerInfo.temperature)°C")
-        }.padding()
-    }
-}
-
-struct StatusIndicator: View {
-    var label: String
-    var value: String?
-    
-    var body: some View {
-        HStack {
-            Text(label)
-                .font(.caption)
-                .foregroundColor(.gray)
-            Text(value ?? "")
-                .font(.headline)
-                .padding(.horizontal, 4)
-        }
-    }
-}
-
 enum Status {
     case good, warning, error
 }
 
-struct CircleStatusIndicator: View {
-    var label: String
-    var status: Status
-    
+class PrinterInfoViewModel: ObservableObject {
+    @Published var printerInfo: PrinterInfoModel = PrinterInfoModel(connectionStatus: true, workingStatus: true, paperStatus: false, battery: 80, temperature: 42)
+}
+
+struct PrinterInfoView: View {
+    @StateObject var viewModel = PrinterInfoViewModel()
+
     var body: some View {
-        HStack {
-            Text(label)
-                .font(.caption)
-                .foregroundColor(.gray)
-            Circle()
-                .fill(color(for: status))
-                .frame(width: 12, height: 12)
-                .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
-                .shadow(color: color(for: status).opacity(0.4), radius: 3, x: 0, y: 2)
+        HStack() {
+            StatusTextWithIcon(icon: viewModel.printerInfo.connectionStatus.status.icon, text: "连接", color: viewModel.printerInfo.connectionStatus.status.color)
+            Spacer()
+            StatusTextWithIcon(icon: viewModel.printerInfo.workingStatus.status.icon, text: "工作", color: viewModel.printerInfo.workingStatus.status.color)
+            Spacer()
+            StatusTextWithIcon(icon: viewModel.printerInfo.paperStatus.status.icon, text: "纸张", color: viewModel.printerInfo.paperStatus.status.color)
+            Spacer()
+            Text("\(viewModel.printerInfo.battery)%")
+                .iconBefore(systemName: "battery.100")
+            Spacer()
+            Text("\(viewModel.printerInfo.temperature)°C")
+                .iconBefore(systemName: "thermometer")
+        }
+        .font(.callout)
+        .padding()
+    }
+}
+
+extension Status {
+    var icon: String {
+        switch self {
+        case .good:
+            return "checkmark.circle.fill"
+        case .warning:
+            return "exclamationmark.triangle.fill"
+        case .error:
+            return "xmark.circle.fill"
         }
     }
-    
-    private func color(for status: Status) -> Color {
-        switch status {
+
+    var color: Color {
+        switch self {
         case .good:
             return .green
         case .warning:
@@ -89,9 +71,26 @@ struct CircleStatusIndicator: View {
     }
 }
 
-struct ModernPrinterInfoView_Previews: PreviewProvider {
-    static var previews: some View {
-        PrinterInfoView()
+struct StatusTextWithIcon: View {
+    var icon: String
+    var text: String
+    var color: Color
+
+    var body: some View {
+        HStack {
+            Text(text)
+            Image(systemName: icon)
+                .foregroundColor(color)
+        }
+    }
+}
+
+extension Text {
+    func iconBefore(systemName: String) -> some View {
+        HStack {
+            Image(systemName: systemName)
+            self
+        }
     }
 }
 

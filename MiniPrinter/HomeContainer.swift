@@ -12,6 +12,8 @@ import JGProgressHUD_SwiftUI
 struct HomeContainer: View {
     @ObservedObject var manager = BTSearchManager.default
     
+    @State var showPrinter = true
+    
     static let shared = HomeContainer()
     
     private init () {}
@@ -19,10 +21,14 @@ struct HomeContainer: View {
     var body: some View {
         JGProgressHUDPresenter(userInteractionOnHUD: false) {
             NavigationView {
-//                AnyView(PrinterView())
-                manager.connectionStatus != .connected ? AnyView(BluetoothSearchView()) : AnyView(PrinterView())
-            }
+                showPrinter ? AnyView(PrinterView()) : AnyView(BluetoothSearchView())
+            }.navigationViewStyle(StackNavigationViewStyle())
         }.ignoresSafeArea()
+            .onReceive(manager.$connectionStatus) { value in
+                if value == .connected && showPrinter == false {
+                    showPrinter = true
+                }
+            }
     }
 }
 
