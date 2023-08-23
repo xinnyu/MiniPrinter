@@ -7,39 +7,22 @@
 
 import SwiftUI
 
-extension Bool {
-    var status: Status {
-        if self {
-            return .good
-        } else {
-            return .error
-        }
-    }
-}
-
-enum Status {
-    case good, warning, error
-}
-
-class PrinterInfoViewModel: ObservableObject {
-    @Published var printerInfo: PrinterInfoModel = PrinterInfoModel(connectionStatus: true, workingStatus: true, paperStatus: false, battery: 80, temperature: 42)
-}
-
 struct PrinterInfoView: View {
-    @StateObject var viewModel = PrinterInfoViewModel()
+    
+    @ObservedObject var viewModel = PrinterInfoModel(connectionStatus: .error, workingStatus: .error, paperStatus: .error, battery: 0, temperature: 0)
 
     var body: some View {
         HStack() {
-            StatusTextWithIcon(icon: viewModel.printerInfo.connectionStatus.status.icon, text: "连接", color: viewModel.printerInfo.connectionStatus.status.color)
+            StatusTextWithIcon(status: viewModel.connectionStatus, text: "连接")
             Spacer()
-            StatusTextWithIcon(icon: viewModel.printerInfo.workingStatus.status.icon, text: "工作", color: viewModel.printerInfo.workingStatus.status.color)
+            StatusTextWithIcon(status: viewModel.workingStatus, text: "工作")
             Spacer()
-            StatusTextWithIcon(icon: viewModel.printerInfo.paperStatus.status.icon, text: "纸张", color: viewModel.printerInfo.paperStatus.status.color)
+            StatusTextWithIcon(status: viewModel.paperStatus, text: "纸张")
             Spacer()
-            Text("\(viewModel.printerInfo.battery)%")
+            Text("\(viewModel.battery)%")
                 .iconBefore(systemName: "battery.100")
             Spacer()
-            Text("\(viewModel.printerInfo.temperature)°C")
+            Text("\(viewModel.temperature)°C")
                 .iconBefore(systemName: "thermometer")
         }
         .font(.callout)
@@ -47,21 +30,15 @@ struct PrinterInfoView: View {
     }
 }
 
-extension Status {
-    var icon: String {
-        switch self {
-        case .good:
-            return "checkmark.circle.fill"
-        case .warning:
-            return "exclamationmark.triangle.fill"
-        case .error:
-            return "xmark.circle.fill"
-        }
-    }
+struct StatusTextWithIcon: View {
+    var status: Status
+    var text: String
+
+    @State private var blinkingOpacity: Double = 1.0
 
     var color: Color {
-        switch self {
-        case .good:
+        switch status {
+        case .good, .blinking:
             return .green
         case .warning:
             return .yellow
@@ -69,18 +46,37 @@ extension Status {
             return .red
         }
     }
-}
 
-struct StatusTextWithIcon: View {
-    var icon: String
-    var text: String
-    var color: Color
+    var icon: String {
+        switch status {
+        case .good:
+            return "checkmark.circle.fill"
+        case .warning, .blinking:
+            return "exclamationmark.circle.fill"
+        case .error:
+            return "xmark.circle.fill"
+        }
+    }
 
     var body: some View {
         HStack {
             Text(text)
             Image(systemName: icon)
                 .foregroundColor(color)
+                .opacity(status == .blinking ? blinkingOpacity : 1.0)
+        }
+        .onChange(of: status) { newStatus in
+            if newStatus == .blinking {
+                startBlinking()
+            } else {
+                blinkingOpacity = 1.0
+            }
+        }
+    }
+    
+    func startBlinking() {
+        withAnimation(Animation.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+            blinkingOpacity = 0.2
         }
     }
 }

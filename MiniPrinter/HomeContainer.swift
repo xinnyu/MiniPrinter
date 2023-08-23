@@ -12,14 +12,14 @@ import JGProgressHUD_SwiftUI
 struct HomeContainer: View {
     @ObservedObject var manager = BTSearchManager.default
     
-    @State var showPrinter = true
+    @State var showPrinter = false
     
     static let shared = HomeContainer()
     
     private init () {}
             
     var body: some View {
-        JGProgressHUDPresenter(userInteractionOnHUD: false) {
+        JGProgressHUDPresenter(userInteractionOnHUD: true) {
             NavigationView {
                 showPrinter ? AnyView(PrinterView()) : AnyView(BluetoothSearchView())
             }.navigationViewStyle(StackNavigationViewStyle())
@@ -40,7 +40,7 @@ extension JGProgressHUDCoordinator {
             hud.backgroundColor = UIColor(white: 0, alpha: 0.4)
             hud.shadow = JGProgressHUDShadow(color: .black, offset: .zero, radius: 4, opacity: 0.3)
             hud.vibrancyEnabled = true
-            hud.textLabel.text = msg ?? "加载中"
+            hud.textLabel.text = msg ?? "加载中..."
             return hud
         }
     }

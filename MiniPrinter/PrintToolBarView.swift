@@ -8,11 +8,30 @@
 import SwiftUI
 import JGProgressHUD_SwiftUI
 
-
 class PrintToolBarViewModel: ObservableObject {
     let densities = ["高", "中", "低"]
     @Published var printDensity: String = "中"
     
+    var uiImage: UIImage?
+    
+    var imagePreviewCallback: ((UIImage?) -> Void)?
+    var imagePrintCallback: ((UIImage?) -> Void)?
+
+    func handlePreview() {
+        // 预览的处理
+        if let image = uiImage {
+            let changedImage = ImageHelper.convertToGrayScaleAndDither(image: image, pixelWidth: 384)
+            self.imagePreviewCallback?(changedImage)
+        }
+    }
+    
+    func handlePrint() {
+        // 打印的处理
+        if let image = uiImage {
+            let changedImage = ImageHelper.convertToGrayScaleAndDither(image: image, pixelWidth: 384)
+            self.imagePrintCallback?(changedImage)
+        }
+    }
 }
 
 struct PrintToolBarView: View {
@@ -46,6 +65,7 @@ struct PrintToolBarView: View {
                 // Print Preview Button
                 Button(action: {
                     // Handle print preview action
+                    self.viewModel.handlePreview()
                 }) {
                     Image(systemName: "eye")
                         .padding(10)
@@ -55,10 +75,7 @@ struct PrintToolBarView: View {
                 
                 // Print Button
                 Button(action: {
-                    self.hudCoordinator.showLoading()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                        hudCoordinator.hideLoading()
-                    }
+                    self.viewModel.handlePrint()
                 }) {
                     Image(systemName: "printer")
                         .padding(10)
@@ -68,11 +85,5 @@ struct PrintToolBarView: View {
             }
         }
         .padding(.horizontal)
-    }
-}
-
-struct PrintToolBarView_Previews: PreviewProvider {
-    static var previews: some View {
-        PrintToolBarView()
     }
 }

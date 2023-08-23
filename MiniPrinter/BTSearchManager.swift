@@ -55,6 +55,8 @@ class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate,
     /// 搜索用的 timer，倒计时
     private var timer: Timer?
     
+    let dataSubject = CurrentValueSubject<Data?, Never>(nil)
+    
     /// 如果10秒钟没有收到消息，就算已经失去连接
     private var disconnectTimer: DispatchSourceTimer?
 
@@ -234,10 +236,9 @@ class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate,
             // 对数据进行处理, 只有读取到了值才算连接成功
             self.connectedPeripheral = peripheral
             connectionStatus = .connected
-            print("xy-log 取到了值 connectionStatus \(connectionStatus)")
-            // 每次收到消息时，发送到subject，这将重置debounce的计时器
             resetDisconnectTimer()
-            print("Received data battery: \(data[0]), temperature: \(data[1]), paper_warn: \(data[2]), work_status: \(data[3])")
+            // 发送数据到subject
+            dataSubject.send(data)
         }
     }
     
