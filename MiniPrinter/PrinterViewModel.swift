@@ -15,13 +15,16 @@ class PrinterViewModel: ObservableObject {
         didSet {
             toolBarViewModel.uiImage = uiImage
             printImage = nil
+            toolBarViewModel.previewImage = nil
+            toolBarViewModel.isPreview = false
         }
     }
     @Published var showLoading: Bool = false
     @Published var orImage: UIImage?
     @Published var printImage: UIImage?
-    @Published var infoModel = PrinterInfoModel(connectionStatus: .error, workingStatus: .error, paperStatus: .error, battery: 0, temperature: 0)
-    lazy var toolBarViewModel = makeToolBarViewModel()
+    @Published var infoModel = PrinterInfoModel.errorModel
+    @Published var toolBarViewModel = PrintToolBarViewModel()
+    @Published var isPreview: Bool = false
 
     // MARK: - Private Properties
     private var manager = BTSearchManager.default
@@ -29,23 +32,22 @@ class PrinterViewModel: ObservableObject {
 
     // MARK: - Initialization
     init() {
+        self.toolBarViewModel.imagePreviewCallback = { [weak self] image in
+            self?.uiImage = image
+            self?.printImage = image
+        }
+        self.toolBarViewModel.imagePrintCallback = { [weak self] isOneTimePrint in
+            self?.processAndSendImageForPrinting(self?.uiImage, isOneTimePrint: isOneTimePrint)
+        }
+        toolBarViewModel.$isPreview
+            .sink { [weak self] value in
+                self?.isPreview = value
+            }
+            .store(in: &cancellables)
         setupBluetoothDataBinding()
     }
     
     // MARK: - Private Methods
-    private func makeToolBarViewModel() -> PrintToolBarViewModel {
-        let viewModel = PrintToolBarViewModel()
-        viewModel.imagePreviewCallback = { [weak self] image in
-            self?.uiImage = image
-            self?.printImage = image
-        }
-        viewModel.imagePrintCallback = { [weak self] image in
-            self?.showLoading = true
-            self?.uiImage = image
-            self?.processAndSendImageForPrinting(image)
-        }
-        return viewModel
-    }
     
     private func setupBluetoothDataBinding() {
         manager.dataSubject
@@ -58,14 +60,21 @@ class PrinterViewModel: ObservableObject {
             .store(in: &cancellables)
     }
 
-    private func processAndSendImageForPrinting(_ image: UIImage?) {
+    private func processAndSendImageForPrinting(_ image: UIImage?, isOneTimePrint: Bool) {
         if let image = image {
-            DispatchQueue.global().async {
-                if let datas = ImageHelper.convertImageToBinaryRows(image: image) {
-                    self.sendDatas(datas)
+            var datas = ImageHelper.generateBinaryDataArray(from: image)!
+            let startPrinterCommand: [UInt8] = [0xA6, 0xA6, 0xA6, 0xA6, 0x01]
+            let startPrinterData = Data(startPrinterCommand)
+            datas.append(startPrinterData)
+            if isOneTimePrint {
+                self.showLoading = true
+                BTSearchManager.default.sendDatas(datas) {
+                    self.showLoading = false;
                 }
-                DispatchQueue.main.async {
-                    self.showLoading = false
+            } else {
+                self.showLoading = true
+                BTSearchManager.default.sendDatasWithoutResponse(datas) {
+                    self.showLoading = false;
                 }
             }
         }
@@ -75,13 +84,10 @@ class PrinterViewModel: ObservableObject {
 // MARK: - Bluetooth Handling
 extension PrinterViewModel {
     private func sendDatas(_ datas: [Data]) {
-        let dispatchQueue = DispatchQueue.global(qos: .userInitiated)
-        var delayTime = DispatchTime.now()
-        for data in datas {
-            dispatchQueue.asyncAfter(deadline: delayTime) {
-                BTSearchManager.default.sendData(data: data)
-            }
-            delayTime = delayTime.advanced(by: .milliseconds(10))
+        print("send count: \(datas.count)")
+        self.showLoading = true
+        BTSearchManager.default.sendDatasWithoutResponse(datas) {
+            self.showLoading = false;
         }
     }
 }

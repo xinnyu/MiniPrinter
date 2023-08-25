@@ -84,23 +84,21 @@ struct PrinterView: View {
 // MARK: - Subviews
 private extension PrinterView {
     var printerInfo: some View {
-        PrinterInfoView(viewModel: viewModel.infoModel)
+        PrinterInfoView(viewModel: $viewModel.infoModel)
     }
     
     var imageDisplayArea: some View {
-        GeometryReader { geometry in
-            ZStack {
-                Rectangle().fill(Color.gray.opacity(0.1))
-                if let img = viewModel.uiImage {
-                    ZoomableImageView(uiImage: .constant(img)).onTapGesture {
-                        presentingState = .imageEditor
-                    }
-                } else {
-                    Text("请选择或拍摄一张图片")
-                        .foregroundColor(.gray)
+        ZStack {
+            Rectangle().fill(Color.gray.opacity(0.1))
+            if let image = viewModel.isPreview ? viewModel.toolBarViewModel.previewImage : viewModel.uiImage {
+                ZoomableImageView(uiImage:Binding.constant(image)).onTapGesture {
+                    presentingState = .imageEditor
                 }
-                addImageButton(geometry: CGSize(width: geometry.size.width, height: geometry.size.width * 2))
+            } else {
+                Text("请选择或拍摄一张图片")
+                    .foregroundColor(.gray)
             }
+            addImageButton(geometry: CGSize(width: 384, height: 384 * 1.41))
         }
     }
     

@@ -12,7 +12,8 @@ import JGProgressHUD_SwiftUI
 struct MiniPrinterApp: App {
     var body: some Scene {
         WindowGroup {
-            HomeContainer.shared
+//            ContentView()
+            HomeContainer()
         }
     }
 }

@@ -10,33 +10,64 @@ import JGProgressHUD_SwiftUI
 
 class PrintToolBarViewModel: ObservableObject {
     let densities = ["高", "中", "低"]
-    @Published var printDensity: String = "中"
+    @Published var printDensity: String = "中" {
+        didSet {
+            sendPrintDensity(printDensity)
+        }
+    }
+    @Published var isOneTimePrint: Bool = false
+    @Published var previewImage: UIImage?
+    @Published var isPreview: Bool = false
+    @Published var uiImage: UIImage?
     
-    var uiImage: UIImage?
-    
+    @Published var printImage: UIImage?
+
     var imagePreviewCallback: ((UIImage?) -> Void)?
-    var imagePrintCallback: ((UIImage?) -> Void)?
+    var imagePrintCallback: ((Bool) -> Void)?
 
     func handlePreview() {
         // 预览的处理
         if let image = uiImage {
-            let changedImage = ImageHelper.convertToGrayScaleAndDither(image: image, pixelWidth: 384)
-            self.imagePreviewCallback?(changedImage)
+            if previewImage == nil {
+                previewImage = ImageHelper.convertToBlackAndWhite(image: image, pixelWidth: 384)
+            }
+            isPreview.toggle()
+        } else {
+            Toast.showWarning("请选择或拍摄一张图片再开始预览")
         }
     }
     
     func handlePrint() {
         // 打印的处理
         if let image = uiImage {
-            let changedImage = ImageHelper.convertToGrayScaleAndDither(image: image, pixelWidth: 384)
-            self.imagePrintCallback?(changedImage)
+            if previewImage == nil {
+                previewImage = ImageHelper.convertToBlackAndWhite(image: image, pixelWidth: 384)
+            }
+            self.imagePrintCallback?(isOneTimePrint)
+        } else {
+            Toast.showWarning("请选择或拍摄一张图片再开始打印")
         }
+    }
+    
+    func sendPrintDensity(_ density: String) {
+        var data = Data([0xA5, 0xA5, 0xA5, 0xA5])
+        switch density {
+        case "低":
+            data.append(0x01)
+        case "中":
+            data.append(0x02)
+        case "高":
+            data.append(0x03)
+        default:
+            data.append(0x01)
+        }
+        BTSearchManager.default.sendDatasWithoutResponse([data]) {}
     }
 }
 
 struct PrintToolBarView: View {
     @EnvironmentObject private var hudCoordinator: JGProgressHUDCoordinator
-    @StateObject var viewModel = PrintToolBarViewModel()
+    @ObservedObject var viewModel: PrintToolBarViewModel
 
     var body: some View {
         HStack(spacing: 15) {
@@ -49,7 +80,7 @@ struct PrintToolBarView: View {
                 }
             } label: {
                 HStack(spacing: 6) {
-                    Text("密度: \(viewModel.printDensity)")
+                    Text("密度")
                     Image(systemName: "slider.horizontal.3")
                 }
                 .foregroundColor(.black)
@@ -57,19 +88,20 @@ struct PrintToolBarView: View {
                 .padding(.horizontal, 16)
                 .background(RoundedRectangle(cornerRadius: 8).fill(Color.gray.opacity(0.1)))
             }
-            
+            Text("兼容")
+                .foregroundColor(.black)
+            .toggleStyle(SwitchToggleStyle(tint: .gray))
+            Toggle(isOn: $viewModel.isOneTimePrint) {
+            }.frame(width: 50)
             Spacer()
-
-            // Buttons on the right
             HStack(spacing: 12) {
-                // Print Preview Button
                 Button(action: {
-                    // Handle print preview action
                     self.viewModel.handlePreview()
                 }) {
                     Image(systemName: "eye")
                         .padding(10)
-                        .background(RoundedRectangle(cornerRadius: 8).fill(Color.gray.opacity(0.1)))
+                        .background(RoundedRectangle(cornerRadius: 8)
+                            .fill(viewModel.isPreview ? Color.gray : Color.gray.opacity(0.1)))
                 }
                 .foregroundColor(.black)
                 

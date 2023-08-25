@@ -26,10 +26,6 @@ class FontChooserContainerView: UIView, ZLTextFontChooserDelegate {
 
     private var fonts: [String] {
         return [
-            "PingFangSC-Regular",
-            "STHeiti",
-            "STSong",
-            "SimSun",
             "AmericanTypewriter",
             "Avenir-Heavy",
             "ChalkboardSE-Regular",

@@ -12,7 +12,8 @@
 		1420B0272A89B63D0048621D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1420B0262A89B63D0048621D /* Preview Assets.xcassets */; };
 		1420B02E2A89BD940048621D /* BluetoothSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1420B02D2A89BD940048621D /* BluetoothSearchView.swift */; };
 		1420B0332A89D8320048621D /* BTSearchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1420B0322A89D8320048621D /* BTSearchManager.swift */; };
-		1420B0362A89FD940048621D /* BluetoothDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1420B0352A89FD940048621D /* BluetoothDevice.swift */; };
+		145F0C872A9748C40004CBBD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145F0C862A9748C40004CBBD /* ContentView.swift */; };
+		145F0C892A98AB510004CBBD /* LongPressModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145F0C882A98AB510004CBBD /* LongPressModifier.swift */; };
 		14C24C172A95FF95003C676F /* ImageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C24C162A95FF95003C676F /* ImageHelper.swift */; };
 		14F455842A8A11D8006255D2 /* BlueSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 14F455832A8A11D8006255D2 /* BlueSwift */; };
 		14F455C32A8B1CFF006255D2 /* ZLImageEditorUIConfiguration+Chaining.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F455A42A8B1CFF006255D2 /* ZLImageEditorUIConfiguration+Chaining.swift */; };
@@ -69,7 +70,8 @@
 		1420B0262A89B63D0048621D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		1420B02D2A89BD940048621D /* BluetoothSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothSearchView.swift; sourceTree = "<group>"; };
 		1420B0322A89D8320048621D /* BTSearchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BTSearchManager.swift; sourceTree = "<group>"; };
-		1420B0352A89FD940048621D /* BluetoothDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothDevice.swift; sourceTree = "<group>"; };
+		145F0C862A9748C40004CBBD /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		145F0C882A98AB510004CBBD /* LongPressModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LongPressModifier.swift; sourceTree = "<group>"; };
 		14C24C162A95FF95003C676F /* ImageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageHelper.swift; sourceTree = "<group>"; };
 		14F455A42A8B1CFF006255D2 /* ZLImageEditorUIConfiguration+Chaining.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZLImageEditorUIConfiguration+Chaining.swift"; sourceTree = "<group>"; };
 		14F455A52A8B1CFF006255D2 /* ZLImageEditorLanguageDefine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZLImageEditorLanguageDefine.swift; sourceTree = "<group>"; };
@@ -159,7 +161,6 @@
 				1420B02D2A89BD940048621D /* BluetoothSearchView.swift */,
 				14F455EB2A8B9CF8006255D2 /* HomeContainer.swift */,
 				1420B0322A89D8320048621D /* BTSearchManager.swift */,
-				1420B0352A89FD940048621D /* BluetoothDevice.swift */,
 				14F455E02A8B6190006255D2 /* PrinterView.swift */,
 				14F455E62A8B7F0C006255D2 /* PrinterViewModel.swift */,
 				14F455E22A8B7596006255D2 /* PrinterInfoView.swift */,
@@ -170,6 +171,8 @@
 				14F455FE2A8CC84F006255D2 /* ImageEditor.swift */,
 				14F456072A8DAA75006255D2 /* WhiteImage.swift */,
 				14C24C162A95FF95003C676F /* ImageHelper.swift */,
+				145F0C862A9748C40004CBBD /* ContentView.swift */,
+				145F0C882A98AB510004CBBD /* LongPressModifier.swift */,
 			);
 			path = MiniPrinter;
 			sourceTree = "<group>";
@@ -332,6 +335,7 @@
 				14F455D82A8B1CFF006255D2 /* UIView+ZLImageEditor.swift in Sources */,
 				14F455D02A8B1CFF006255D2 /* ZLTextStickerView.swift in Sources */,
 				14F455F82A8CB7C1006255D2 /* ImagePicker.swift in Sources */,
+				145F0C872A9748C40004CBBD /* ContentView.swift in Sources */,
 				14F455C82A8B1CFF006255D2 /* ZLImageStickerView.swift in Sources */,
 				14F455E52A8B7814006255D2 /* PrintToolBarView.swift in Sources */,
 				14F456082A8DAA75006255D2 /* WhiteImage.swift in Sources */,
@@ -358,7 +362,6 @@
 				14F455D72A8B1CFF006255D2 /* CGFloat+ZLImageEditor.swift in Sources */,
 				14F455DA2A8B1CFF006255D2 /* Cell+ZLImageEditor.swift in Sources */,
 				14F455D42A8B1CFF006255D2 /* ZLEditToolCells.swift in Sources */,
-				1420B0362A89FD940048621D /* BluetoothDevice.swift in Sources */,
 				14F455DD2A8B1CFF006255D2 /* String+ZLImageEditor.swift in Sources */,
 				14F455F32A8C796A006255D2 /* PrinterModel.swift in Sources */,
 				14F455DB2A8B1CFF006255D2 /* Bundle+ZLImageEditor.swift in Sources */,
@@ -366,6 +369,7 @@
 				14F455C92A8B1CFF006255D2 /* ZLAdjustSlider.swift in Sources */,
 				1420B0332A89D8320048621D /* BTSearchManager.swift in Sources */,
 				14F455CD2A8B1CFF006255D2 /* ZLImageEditor.swift in Sources */,
+				145F0C892A98AB510004CBBD /* LongPressModifier.swift in Sources */,
 				14C24C172A95FF95003C676F /* ImageHelper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

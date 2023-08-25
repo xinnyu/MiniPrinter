@@ -544,7 +544,7 @@ open class ZLEditImageViewController: UIViewController {
         let ratio = min(scrollViewSize.width / editSize.width, scrollViewSize.height / editSize.height)
         let w = ratio * editSize.width * mainScrollView.zoomScale
         let h = ratio * editSize.height * mainScrollView.zoomScale
-        containerView.frame = CGRect(x: max(0, (scrollViewSize.width - w) / 2), y: max(0, (scrollViewSize.height - h) / 2), width: w, height: h)
+        containerView.frame = CGRect(x: max(0, (scrollViewSize.width - w) / 2), y: max(0, (scrollViewSize.height - h) / 2 - deviceOffset), width: w, height: h)
         mainScrollView.contentSize = containerView.frame.size
         
         if selectRatio?.isCircle == true {
@@ -1456,6 +1456,11 @@ extension ZLEditImageViewController: UIGestureRecognizerDelegate {
 // MARK: scroll view delegate
 
 extension ZLEditImageViewController: UIScrollViewDelegate {
+    
+    var deviceOffset: CGFloat {
+        return self.view.bounds.size.height * 0.06
+    }
+    
     public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return containerView
     }
@@ -1463,7 +1468,7 @@ extension ZLEditImageViewController: UIScrollViewDelegate {
     public func scrollViewDidZoom(_ scrollView: UIScrollView) {
         let offsetX = (scrollView.frame.width > scrollView.contentSize.width) ? (scrollView.frame.width - scrollView.contentSize.width) * 0.5 : 0
         let offsetY = (scrollView.frame.height > scrollView.contentSize.height) ? (scrollView.frame.height - scrollView.contentSize.height) * 0.5 : 0
-        containerView.center = CGPoint(x: scrollView.contentSize.width * 0.5 + offsetX, y: scrollView.contentSize.height * 0.5 + offsetY)
+        containerView.center = CGPoint(x: scrollView.contentSize.width * 0.5 + offsetX, y: scrollView.contentSize.height * 0.5 + offsetY - deviceOffset)
     }
     
     public func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {

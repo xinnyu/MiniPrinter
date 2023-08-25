@@ -22,7 +22,6 @@ extension CBPeripheral {
         if rssi == 0 {
             return -1.0 // Unknown distance
         }
-
         let ratio = rssi / Double(txPower)
         if ratio < 1.0 {
             return pow(ratio, 10)
@@ -49,50 +48,61 @@ enum BTError: Error {
 
 class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, ObservableObject {
     
-    static let `default` = BTSearchManager()
+    typealias CompletionHandler = () -> Void
 
-    private var centralManager: CBCentralManager!
-    /// 搜索用的 timer，倒计时
-    private var timer: Timer?
+    static let `default` = BTSearchManager()
+    static let connectionStateDidChangeNotification = Notification.Name("connectionStateDidChange")
     
     let dataSubject = CurrentValueSubject<Data?, Never>(nil)
-    
-    /// 如果10秒钟没有收到消息，就算已经失去连接
-    private var disconnectTimer: DispatchSourceTimer?
 
     @Published private(set) var discoveredPeripherals: [CBPeripheral] = []
-    
     @Published var connectionStatus: ConnectionStatus = .none
-    
     @Published var connectedPeripheral: CBPeripheral?
-    
     @Published var isSearching = false
     @Published var remainingSeconds = BTMacro.searchSeconds
     @Published var distanceDict = [UUID : Double]()
-
-    static let connectionStateDidChangeNotification = Notification.Name("connectionStateDidChange")
-
     
+    private var sendDataSemaphore: DispatchSemaphore?
+    private var queue = DispatchQueue(label: "com.miniPrinter.bluetoothSendQueue")
+    private var centralManager: CBCentralManager!
+    /// 搜索用的 timer，倒计时
+    private var timer: Timer?
     // 假设您已经找到了要写入的特征
-    var writeCharacteristic: CBCharacteristic?
-    
-    // 发送数据到设备
-    func sendData(data: Data) {
-        if let characteristic = writeCharacteristic {
-            // 确保该特征允许写入
-            if characteristic.properties.contains(.write) {
-                connectedPeripheral?.writeValue(data, for: characteristic, type: .withResponse)
-            } else if characteristic.properties.contains(.writeWithoutResponse) {
-                connectedPeripheral?.writeValue(data, for: characteristic, type: .withoutResponse)
-            }
-        }
-    }
+    private var writeCharacteristic: CBCharacteristic?
+    /// 如果10秒钟没有收到消息，就算已经失去连接
+    private var disconnectTimer: DispatchSourceTimer?
     
     private override init() {
         super.init()
         centralManager = CBCentralManager(delegate: self, queue: nil)
     }
 
+    // 将数据数组发送给指定的特征
+    func sendDatas(_ datas: [Data], completion: @escaping CompletionHandler) {
+        queue.async {
+            for data in datas {
+                self.sendDataSemaphore = DispatchSemaphore(value: 0)
+                self.sendData(data: data)
+                _ = self.sendDataSemaphore?.wait(timeout: .now() + .seconds(1)) // Timeout after 5 seconds for safety
+            }
+            DispatchQueue.main.async {
+                completion()
+            }
+        }
+    }
+    
+    func sendDatasWithoutResponse(_ datas: [Data], completion: @escaping CompletionHandler) {
+        queue.async {
+            for data in datas {
+                self.sendDataWithoutResponse(data: data)
+                Thread.sleep(forTimeInterval: 0.01)
+            }
+            DispatchQueue.main.async {
+                completion()
+            }
+        }
+    }
+    
     // 搜索附近的蓝牙设备
     func searchForDevices() throws {
         guard centralManager.state == .poweredOn else {
@@ -134,8 +144,31 @@ class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate,
             timer = nil
         }
     }
+    
+    // 发送数据到设备
+    private func sendData(data: Data) {
+        guard let characteristic = writeCharacteristic else {
+            sendDataSemaphore?.signal()
+            return
+        }
+        if !characteristic.properties.contains(.write) {
+            sendDataSemaphore?.signal()
+            return
+        }
+        connectedPeripheral?.writeValue(data, for: characteristic, type: .withResponse)
+    }
+    
+    // 发送数据到设备
+    private func sendDataWithoutResponse(data: Data) {
+        if let characteristic = writeCharacteristic {
+            // 确保该特征允许写入
+            if characteristic.properties.contains(.writeWithoutResponse) {
+                connectedPeripheral?.writeValue(data, for: characteristic, type: .withoutResponse)
+            }
+        }
+    }
 
-    func handleTimeout() {
+    private func handleTimeout() {
         print("Device disconnected due to timeout")
         self.connectedPeripheral = nil
         if connectionStatus != .failed {
@@ -152,8 +185,11 @@ class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate,
         }
         disconnectTimer?.resume()
     }
+}
 
-    // MARK: - CBCentralManagerDelegate
+// MARK: - CBCentralManagerDelegate
+
+extension BTSearchManager {
 
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         // 在这里处理蓝牙状态变化
@@ -192,8 +228,12 @@ class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate,
         }
         NotificationCenter.default.post(name: BTSearchManager.connectionStateDidChangeNotification, object: peripheral)
     }
-    
-    // MARK: ------- CBPeripheralDelegate -------
+}
+
+
+// MARK: ------- CBPeripheralDelegate -------
+
+extension BTSearchManager {
     
     // 发现服务后调用
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -234,11 +274,11 @@ class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate,
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         if let data = characteristic.value, characteristic.uuid == BTMacro.characteristicUUID {
             // 对数据进行处理, 只有读取到了值才算连接成功
-            self.connectedPeripheral = peripheral
+            connectedPeripheral = peripheral
             connectionStatus = .connected
-            resetDisconnectTimer()
             // 发送数据到subject
             dataSubject.send(data)
+            resetDisconnectTimer()
         }
     }
     
@@ -247,8 +287,7 @@ class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate,
         if let error = error {
             print("Error writing characteristic: \(error)")
         } else {
-            print("Successfully wrote value for characteristic: \(characteristic)")
+            sendDataSemaphore?.signal()
         }
     }
-    
 }

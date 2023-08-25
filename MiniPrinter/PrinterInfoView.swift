@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PrinterInfoView: View {
     
-    @ObservedObject var viewModel = PrinterInfoModel(connectionStatus: .error, workingStatus: .error, paperStatus: .error, battery: 0, temperature: 0)
+    @Binding var viewModel: PrinterInfoModel
 
     var body: some View {
         HStack() {

@@ -50,9 +50,11 @@ class PrinterInfoModel: ObservableObject {
         let workStatusValue = data[3]
         self.battery = batteryValue
         self.temperature = temperatureValue
-        self.paperStatus = paperWarnValue != 0 ? .good : .error
-        self.workingStatus = .blinking
+        self.paperStatus = paperWarnValue != 1 ? .good : .error
+        self.workingStatus = workStatusValue != 0 ? .blinking : .good
         // 这里假设连接成功后，接收通知，所以直接设置为true
         self.connectionStatus = .good
     }
+    
+    static let errorModel = PrinterInfoModel(connectionStatus: .error, workingStatus: .error, paperStatus: .error, battery: 0, temperature: 0)
 }
