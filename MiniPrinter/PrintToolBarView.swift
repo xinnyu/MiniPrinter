@@ -21,6 +21,8 @@ class PrintToolBarViewModel: ObservableObject {
     @Published var uiImage: UIImage?
     
     @Published var printImage: UIImage?
+    
+    @Published var threshold: Double = 127
 
     var imagePreviewCallback: ((UIImage?) -> Void)?
     var imagePrintCallback: ((Bool) -> Void)?
@@ -29,7 +31,8 @@ class PrintToolBarViewModel: ObservableObject {
         // 预览的处理
         if let image = uiImage {
             if previewImage == nil {
-                previewImage = ImageHelper.convertToBlackAndWhite(image: image, pixelWidth: 384)
+                guard let image = ImageSuperHelper.resizeImage(image: image, newWidth: 384) else { return }
+                previewImage = ImageSuperHelper.floydSteinbergDithering(source: image)
             }
             isPreview.toggle()
         } else {
@@ -37,11 +40,23 @@ class PrintToolBarViewModel: ObservableObject {
         }
     }
     
+    func handleSliderChange(value: Double) {
+        if let image = uiImage {
+            guard let image = ImageSuperHelper.resizeImage(image: image, newWidth: 384) else { return }
+            previewImage = ImageSuperHelper.floydSteinbergDithering(source: image, threshold: Int(value))
+            isPreview = true
+        }
+    }
+    
     func handlePrint() {
+        if BTSearchManager.default.connectionStatus != .connected {
+            Toast.showError("请先连接设备")
+        }
         // 打印的处理
         if let image = uiImage {
             if previewImage == nil {
                 previewImage = ImageHelper.convertToBlackAndWhite(image: image, pixelWidth: 384)
+                isPreview = true
             }
             self.imagePrintCallback?(isOneTimePrint)
         } else {
@@ -50,6 +65,9 @@ class PrintToolBarViewModel: ObservableObject {
     }
     
     func sendPrintDensity(_ density: String) {
+        if BTSearchManager.default.connectionStatus != .connected {
+            Toast.showError("请先连接设备")
+        }
         var data = Data([0xA5, 0xA5, 0xA5, 0xA5])
         switch density {
         case "低":
@@ -61,7 +79,9 @@ class PrintToolBarViewModel: ObservableObject {
         default:
             data.append(0x01)
         }
-        BTSearchManager.default.sendDatasWithoutResponse([data]) {}
+        BTSearchManager.default.sendDatasWithoutResponse([data]) {
+            Toast.showComplete("设置打印密度成功：\(density)")
+        }
     }
 }
 
@@ -71,28 +91,36 @@ struct PrintToolBarView: View {
 
     var body: some View {
         HStack(spacing: 15) {
-            // Print Density Menu
-            Menu {
-                ForEach(viewModel.densities, id: \.self) { density in
-                    Button(density) {
-                        viewModel.printDensity = density
+            
+            if viewModel.isPreview {
+                Slider(value: $viewModel.threshold, in: 0...254, step: 1, onEditingChanged: { isEditing in
+                        if !isEditing {
+                            viewModel.handleSliderChange(value: viewModel.threshold)
+                        }
+                    })
+                    .padding(.horizontal)
+                    .accentColor(.blue)
+                Text("\(Int(viewModel.threshold))")
+                    .foregroundColor(.black)
+            } else {
+                // Print Density Menu
+                Menu {
+                    ForEach(viewModel.densities, id: \.self) { density in
+                        Button(density) {
+                            viewModel.printDensity = density
+                        }
                     }
+                } label: {
+                    HStack(spacing: 6) {
+                        Text("密度")
+                        Image(systemName: "slider.horizontal.3")
+                    }
+                    .foregroundColor(.black)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal)
+                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.gray.opacity(0.1)))
                 }
-            } label: {
-                HStack(spacing: 6) {
-                    Text("密度")
-                    Image(systemName: "slider.horizontal.3")
-                }
-                .foregroundColor(.black)
-                .padding(.vertical, 8)
-                .padding(.horizontal, 16)
-                .background(RoundedRectangle(cornerRadius: 8).fill(Color.gray.opacity(0.1)))
             }
-            Text("兼容")
-                .foregroundColor(.black)
-            .toggleStyle(SwitchToggleStyle(tint: .gray))
-            Toggle(isOn: $viewModel.isOneTimePrint) {
-            }.frame(width: 50)
             Spacer()
             HStack(spacing: 12) {
                 Button(action: {

@@ -14,6 +14,11 @@ struct PrinterInfoView: View {
     var body: some View {
         HStack() {
             StatusTextWithIcon(status: viewModel.connectionStatus, text: "连接")
+                .onTapGesture {
+                    if viewModel.connectionStatus == .error {
+                        HomeViewModel.shared.showPrinter = false
+                    }
+                }
             Spacer()
             StatusTextWithIcon(status: viewModel.workingStatus, text: "工作")
             Spacer()

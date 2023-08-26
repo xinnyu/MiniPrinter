@@ -10,75 +10,31 @@ import AlertToast
 import JGProgressHUD_SwiftUI
 import AlertToast
 
-class Toast: ObservableObject {
-    static let shared = Toast()
-    private init () {}
-        
-    @Published var toastText = ""
-    @Published var showToast = false
-    @Published var toast: AlertToast?
+class HomeViewModel: ObservableObject {
+    static let shared = HomeViewModel()
     
-    func showToast(title: String) {
-        toastText = title
-        toast = AlertToast(displayMode: .hud, type: .regular, title: toastText)
-        showToast.toggle()
-    }
+    @Published var showPrinter = false
     
-    static func show(_ title: String) {
-        Toast.shared.showToast(title: title)
-    }
-    
-    func showWarning(title: String) {
-        toastText = title
-//        toast = AlertToast(displayMode: .hud, type: .regular, title: toastText, style: .style(backgroundColor: .yellow.opacity(0.5)))
-        toast = AlertToast(displayMode: .hud, type: .systemImage("exclamationmark.triangle.fill", .yellow), title: toastText)
-        showToast.toggle()
-    }
-    
-    static func showWarning(_ title: String) {
-        Toast.shared.showWarning(title: title)
-    }
-    
-    func showError(title: String) {
-        toastText = title
-        toast = AlertToast(displayMode: .hud, type: .error(.red), title: toastText)
-//        toast = AlertToast(displayMode: .hud, type: .systemImage("exclamationmark.triangle", .yellow), title: toastText)
-        showToast.toggle()
-    }
-    
-    static func showError(_ title: String) {
-        Toast.shared.showError(title: title)
-    }
-    
-    func showComplete(title: String) {
-        toastText = title
-        toast = AlertToast(displayMode: .hud, type: .complete(.green), title: toastText)
-//        toast = AlertToast(displayMode: .hud, type: .systemImage("exclamationmark.triangle", .yellow), title: toastText)
-        showToast.toggle()
-    }
-    
-    static func showComplete(_ title: String) {
-        Toast.shared.showComplete(title: title)
-    }
+    private init() { }
     
 }
+
 
 struct HomeContainer: View {
     @ObservedObject var btManager = BTSearchManager.default
     @ObservedObject var toast = Toast.shared
-
-    @State var showPrinter = false
-            
+    @ObservedObject var viewModel = HomeViewModel.shared
+    
     var body: some View {
         JGProgressHUDPresenter(userInteractionOnHUD: true) {
             NavigationView {
-                showPrinter ? AnyView(PrinterView()) : AnyView(BluetoothSearchView())
+                viewModel.showPrinter ? AnyView(PrinterView()) : AnyView(BluetoothSearchView())
             }.navigationViewStyle(StackNavigationViewStyle())
         }
         .ignoresSafeArea()
         .onReceive(btManager.$connectionStatus) { value in
-            if value == .connected && showPrinter == false {
-                showPrinter = true
+            if value == .connected && viewModel.showPrinter == false {
+                viewModel.showPrinter = true
             }
         }
         .toast(isPresenting: $toast.showToast) {

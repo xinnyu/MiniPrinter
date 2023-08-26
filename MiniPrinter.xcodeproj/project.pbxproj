@@ -61,6 +61,8 @@
 		14F456032A8CE819006255D2 /* FontChooserContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F456012A8CE819006255D2 /* FontChooserContainerView.swift */; };
 		14F456062A8CE915006255D2 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 14F456052A8CE915006255D2 /* SnapKit */; };
 		14F456082A8DAA75006255D2 /* WhiteImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F456072A8DAA75006255D2 /* WhiteImage.swift */; };
+		8C7F36722A9A07DE00A26BC9 /* ImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C7F36712A9A07DE00A26BC9 /* ImageExtensions.swift */; };
+		8C7F36742A9A3B3000A26BC9 /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C7F36732A9A3B3000A26BC9 /* Toast.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -115,6 +117,8 @@
 		14F456012A8CE819006255D2 /* FontChooserContainerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FontChooserContainerView.swift; sourceTree = "<group>"; };
 		14F456072A8DAA75006255D2 /* WhiteImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhiteImage.swift; sourceTree = "<group>"; };
 		14F456092A8DACA3006255D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		8C7F36712A9A07DE00A26BC9 /* ImageExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageExtensions.swift; sourceTree = "<group>"; };
+		8C7F36732A9A3B3000A26BC9 /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -173,6 +177,8 @@
 				14C24C162A95FF95003C676F /* ImageHelper.swift */,
 				145F0C862A9748C40004CBBD /* ContentView.swift */,
 				145F0C882A98AB510004CBBD /* LongPressModifier.swift */,
+				8C7F36712A9A07DE00A26BC9 /* ImageExtensions.swift */,
+				8C7F36732A9A3B3000A26BC9 /* Toast.swift */,
 			);
 			path = MiniPrinter;
 			sourceTree = "<group>";
@@ -334,6 +340,7 @@
 				14F455FD2A8CC6EB006255D2 /* ZoomableImageView.swift in Sources */,
 				14F455D82A8B1CFF006255D2 /* UIView+ZLImageEditor.swift in Sources */,
 				14F455D02A8B1CFF006255D2 /* ZLTextStickerView.swift in Sources */,
+				8C7F36742A9A3B3000A26BC9 /* Toast.swift in Sources */,
 				14F455F82A8CB7C1006255D2 /* ImagePicker.swift in Sources */,
 				145F0C872A9748C40004CBBD /* ContentView.swift in Sources */,
 				14F455C82A8B1CFF006255D2 /* ZLImageStickerView.swift in Sources */,
@@ -367,6 +374,7 @@
 				14F455DB2A8B1CFF006255D2 /* Bundle+ZLImageEditor.swift in Sources */,
 				14F455DC2A8B1CFF006255D2 /* UIColor+ZLImageEditor.swift in Sources */,
 				14F455C92A8B1CFF006255D2 /* ZLAdjustSlider.swift in Sources */,
+				8C7F36722A9A07DE00A26BC9 /* ImageExtensions.swift in Sources */,
 				1420B0332A89D8320048621D /* BTSearchManager.swift in Sources */,
 				14F455CD2A8B1CFF006255D2 /* ZLImageEditor.swift in Sources */,
 				145F0C892A98AB510004CBBD /* LongPressModifier.swift in Sources */,
@@ -499,17 +507,18 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MiniPrinter/Preview Content\"";
-				DEVELOPMENT_TEAM = GSH6P3Q8U8;
+				DEVELOPMENT_TEAM = XKE2B6H7CT;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MiniPrinter/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "迷你打印机";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "搜索和连接MINI打印机蓝牙";
 				INFOPLIST_KEY_NSCameraUsageDescription = "拍摄照片用于打印";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -532,17 +541,18 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MiniPrinter/Preview Content\"";
-				DEVELOPMENT_TEAM = GSH6P3Q8U8;
+				DEVELOPMENT_TEAM = XKE2B6H7CT;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MiniPrinter/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "迷你打印机";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "搜索和连接MINI打印机蓝牙";
 				INFOPLIST_KEY_NSCameraUsageDescription = "拍摄照片用于打印";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

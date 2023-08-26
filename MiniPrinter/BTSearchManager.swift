@@ -54,9 +54,11 @@ class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate,
     static let connectionStateDidChangeNotification = Notification.Name("connectionStateDidChange")
     
     let dataSubject = CurrentValueSubject<Data?, Never>(nil)
+    
+    
+    @Published var connectionStatus: ConnectionStatus = .none
 
     @Published private(set) var discoveredPeripherals: [CBPeripheral] = []
-    @Published var connectionStatus: ConnectionStatus = .none
     @Published var connectedPeripheral: CBPeripheral?
     @Published var isSearching = false
     @Published var remainingSeconds = BTMacro.searchSeconds
@@ -217,6 +219,7 @@ extension BTSearchManager {
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         // 开始发现指定的服务，如果您不确定要发现的服务的UUID，可以传递nil来发现所有服务
+        connectionStatus = .connected
         peripheral.discoverServices([BTMacro.serviceUUID])
         NotificationCenter.default.post(name: BTSearchManager.connectionStateDidChangeNotification, object: peripheral)
     }

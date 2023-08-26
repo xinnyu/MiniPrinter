@@ -168,3 +168,235 @@ class ImageHelper {
 
 }
 
+
+class ImageProcessor {
+
+    static func convertToBMW(image: UIImage, threshold: Int) -> (UIImage, [Data]) {
+        guard let rImage = ImageHelper.resizeImage(image, toWidth: 384) else {
+            return (image, [])
+        }
+        guard let cgImage = rImage.cgImage else { return (image, []) }
+        
+        let width = cgImage.width
+        let height = cgImage.height
+        
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        var rawData = [UInt8](repeating: 0, count: height * width * 4)
+        let bytesPerPixel = 4
+        let bytesPerRow = bytesPerPixel * width
+        let bitsPerComponent = 8
+        let bitmapInfo: UInt32 = CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
+        
+        let context = CGContext(data: &rawData, width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: bitmapInfo)
+        context?.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+        
+        var outputData: [Data] = []
+        
+        for y in 0..<height {
+            var rowData: Data = Data()
+            var currentByte: UInt8 = 0
+            var bitIndex = 7
+            
+            for x in 0..<width {
+                let byteIndex = (bytesPerRow * y) + x * bytesPerPixel
+                let red = rawData[byteIndex]
+                let green = rawData[byteIndex + 1]
+                let blue = rawData[byteIndex + 2]
+                
+                let isRedAboveThreshold = red <= UInt8(threshold)
+                let isGreenAboveThreshold = green <= UInt8(threshold)
+                let isBlueAboveThreshold = blue <= UInt8(threshold)
+                
+                if isRedAboveThreshold { rawData[byteIndex] = 255 } else { rawData[byteIndex] = 0 }
+                if isGreenAboveThreshold { rawData[byteIndex + 1] = 255 } else { rawData[byteIndex + 1] = 0 }
+                if isBlueAboveThreshold { rawData[byteIndex + 2] = 255 } else { rawData[byteIndex + 2] = 0 }
+                
+                // Determine if pixel is 'colored' or not
+                if isRedAboveThreshold || isGreenAboveThreshold || isBlueAboveThreshold {
+                    currentByte |= (1 << bitIndex)
+                }
+                
+                if bitIndex == 0 {
+                    rowData.append(currentByte)
+                    currentByte = 0
+                    bitIndex = 7
+                } else {
+                    bitIndex -= 1
+                }
+            }
+            
+            if bitIndex != 7 {
+                rowData.append(currentByte)
+            }
+            
+            outputData.append(rowData)
+        }
+        
+        let outputCGImage = context?.makeImage()
+        let outputImage = UIImage(cgImage: outputCGImage!)
+        
+        return (outputImage, outputData)
+    }
+
+    static func convertToBinary(image: UIImage, threshold: Int) -> [Data] {
+        guard let rImage = ImageHelper.resizeImage(image, toWidth: 384) else {
+            return []
+        }
+        guard let cgImage = rImage.cgImage else {
+            return []
+        }
+
+        let width = cgImage.width
+        let height = cgImage.height
+        let bytesPerPixel = 4
+
+        // 用于存储每一行的Data
+        var rowsData: [Data] = []
+
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let rawData = UnsafeMutablePointer<UInt8>.allocate(capacity: height * width * bytesPerPixel)
+        defer {
+            rawData.deallocate()
+        }
+        
+        let bytesPerRow = bytesPerPixel * width
+        let bitmapInfo: UInt32 = CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
+
+        let context = CGContext(data: rawData, width: width, height: height, bitsPerComponent: 8, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: bitmapInfo)!
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height)))
+
+        for y in 0 ..< height {
+            var rowData = Data()
+            var byte: UInt8 = 0
+            var bitIndex = 7
+
+            for x in 0 ..< width {
+                let byteIndex = bytesPerRow * y + bytesPerPixel * x
+
+                let red = rawData[byteIndex]
+                let green = rawData[byteIndex + 1]
+                let blue = rawData[byteIndex + 2]
+
+                let grayValue = (Int(red) + Int(green) + Int(blue)) / 3
+
+                if grayValue <= threshold {
+                    byte |= (1 << bitIndex)
+                }
+
+                if bitIndex == 0 {
+                    rowData.append(byte)
+                    byte = 0
+                    bitIndex = 7
+                } else {
+                    bitIndex -= 1
+                }
+            }
+
+
+            if bitIndex != 7 {
+                rowData.append(byte)
+            }
+
+            rowsData.append(rowData)
+        }
+
+        return rowsData
+    }
+}
+
+class ImageSuperHelper {
+
+    static func convertToPrinterFormat(image: UIImage) -> (UIImage, [Data])? {
+        guard let resizedImage = resizeImage(image: image, newWidth: 384) else {
+            return nil
+        }
+
+        guard let bwImage = floydSteinbergDithering(source: resizedImage) else {
+            return nil
+        }
+
+        let dataRows = convertToDataRows(bwImage: bwImage)
+
+        return (bwImage, dataRows)
+    }
+
+    static func resizeImage(image: UIImage, newWidth: CGFloat) -> UIImage? {
+        if newWidth == image.size.width {
+            return image
+        }
+        let scale = newWidth / image.size.width
+        let newHeight = image.size.height * scale
+        UIGraphicsBeginImageContext(CGSize(width: newWidth, height: newHeight))
+        image.draw(in: CGRect(x: 0, y: 0, width: newWidth, height: newHeight))
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return newImage
+    }
+
+    static func floydSteinbergDithering(source: UIImage, threshold: Int = 127) -> UIImage? {
+        guard let inputCGImage = source.cgImage else { return nil }
+        let width = inputCGImage.width
+        let height = inputCGImage.height
+
+        let colorSpace = CGColorSpaceCreateDeviceGray()
+        var pixels = [UInt8](repeating: 0, count: width * height)
+        let context = CGContext(data: &pixels, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width, space: colorSpace, bitmapInfo: CGImageAlphaInfo.none.rawValue)
+        context?.draw(inputCGImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+
+        for y in 0..<height {
+            for x in 0..<width {
+                let index = y * width + x
+                let oldPixel = Int(pixels[index])
+                let newPixel = oldPixel > threshold ? 255 : 0
+                pixels[index] = UInt8(newPixel)
+                let quantError = oldPixel - newPixel
+
+                if x < width - 1 {
+                    pixels[index + 1] = UInt8(clamping: Int(pixels[index + 1]) + quantError * 7 / 16)
+                }
+                if y < height - 1 {
+                    if x > 0 {
+                        pixels[index + width - 1] = UInt8(clamping: Int(pixels[index + width - 1]) + quantError * 3 / 16)
+                    }
+                    pixels[index + width] = UInt8(clamping: Int(pixels[index + width]) + quantError * 5 / 16)
+                    if x < width - 1 {
+                        pixels[index + width + 1] = UInt8(clamping: Int(pixels[index + width + 1]) + quantError * 1 / 16)
+                    }
+                }
+            }
+        }
+
+        guard let outputCGImage = context?.makeImage() else { return nil }
+        return UIImage(cgImage: outputCGImage)
+    }
+
+    static func convertToDataRows(bwImage: UIImage) -> [Data] {
+        guard let cgImage = bwImage.cgImage else { return [] }
+
+        let width = cgImage.width
+        let height = cgImage.height
+
+        let colorSpace = CGColorSpaceCreateDeviceGray()
+        var pixels = [UInt8](repeating: 0, count: width * height)
+        let context = CGContext(data: &pixels, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width, space: colorSpace, bitmapInfo: CGImageAlphaInfo.none.rawValue)
+        context?.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+
+        var rows: [Data] = []
+        for y in 0..<height {
+            var rowData = Data(count: width / 8)
+            for x in 0..<width {
+                let byteIndex = x / 8
+                let bitIndex = 7 - (x % 8)
+                if pixels[y * width + x] == 0 { // if pixel is black
+                    let mask = UInt8(1 << bitIndex)
+                    rowData[byteIndex] |= mask
+                }
+            }
+            rows.append(rowData)
+        }
+
+        return rows
+    }
+
+}

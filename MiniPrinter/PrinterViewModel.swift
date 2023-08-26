@@ -25,6 +25,10 @@ class PrinterViewModel: ObservableObject {
     @Published var infoModel = PrinterInfoModel.errorModel
     @Published var toolBarViewModel = PrintToolBarViewModel()
     @Published var isPreview: Bool = false
+    @Published var printData: (UIImage, Data)?
+    
+    @ObservedObject var btManager = BTSearchManager.default
+
 
     // MARK: - Private Properties
     private var manager = BTSearchManager.default
@@ -45,6 +49,12 @@ class PrinterViewModel: ObservableObject {
             }
             .store(in: &cancellables)
         setupBluetoothDataBinding()
+        
+        btManager.$connectionStatus.sink { [weak self] value in
+            if value == .failed {
+                self?.infoModel = .errorModel
+            }
+        }.store(in: &cancellables)
     }
     
     // MARK: - Private Methods
@@ -61,21 +71,28 @@ class PrinterViewModel: ObservableObject {
     }
 
     private func processAndSendImageForPrinting(_ image: UIImage?, isOneTimePrint: Bool) {
-        if let image = image {
-            var datas = ImageHelper.generateBinaryDataArray(from: image)!
-            let startPrinterCommand: [UInt8] = [0xA6, 0xA6, 0xA6, 0xA6, 0x01]
-            let startPrinterData = Data(startPrinterCommand)
-            datas.append(startPrinterData)
-            if isOneTimePrint {
-                self.showLoading = true
-                BTSearchManager.default.sendDatas(datas) {
-                    self.showLoading = false;
-                }
-            } else {
-                self.showLoading = true
-                BTSearchManager.default.sendDatasWithoutResponse(datas) {
-                    self.showLoading = false;
-                }
+        guard infoModel.paperStatus != .error else {
+            Toast.showError("缺纸中，请换纸后再打印")
+            return
+        }
+        guard let image = image else { return }
+        guard let value = ImageSuperHelper.convertToPrinterFormat(image: image) else {
+            Toast.showError("图片生成失败")
+            return
+        }
+        var datas = value.1
+        let startPrinterCommand: [UInt8] = [0xA6, 0xA6, 0xA6, 0xA6, 0x01]
+        let startPrinterData = Data(startPrinterCommand)
+        datas.append(startPrinterData)
+        if isOneTimePrint {
+            self.showLoading = true
+            BTSearchManager.default.sendDatas(datas) {
+                self.showLoading = false;
+            }
+        } else {
+            self.showLoading = true
+            BTSearchManager.default.sendDatasWithoutResponse(datas) {
+                self.showLoading = false;
             }
         }
     }
