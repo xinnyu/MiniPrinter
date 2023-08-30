@@ -126,6 +126,10 @@ class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate,
 
     // 连接某个设备
     func connectToDevice(_ peripheral: CBPeripheral) throws {
+        guard peripheral.name == BTMacro.deviceName else {
+            Toast.showError("请选择设备名称为 \(BTMacro.deviceName) 的设备")
+            return
+        }
         resetDisconnectTimer()
         connectionStatus = .connecting
         guard centralManager.state == .poweredOn else {
