@@ -73,7 +73,7 @@ struct PrinterView: View {
             })
         }.onChange(of: viewModel.showLoading) { newValue in
             if (newValue) {
-                hudCoordinator.showLoading()
+                hudCoordinator.showLoading(msg: "下发中")
             } else {
                 hudCoordinator.hideLoading()
             }

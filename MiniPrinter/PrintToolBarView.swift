@@ -53,11 +53,7 @@ class PrintToolBarViewModel: ObservableObject {
             Toast.showError("请先连接设备")
         }
         // 打印的处理
-        if let image = uiImage {
-            if previewImage == nil {
-                previewImage = ImageHelper.convertToBlackAndWhite(image: image, pixelWidth: 384)
-                isPreview = true
-            }
+        if let _ = uiImage {
             self.imagePrintCallback?(isOneTimePrint)
         } else {
             Toast.showWarning("请选择或拍摄一张图片再开始打印")
@@ -115,7 +111,7 @@ struct PrintToolBarView: View {
                         Text("密度")
                         Image(systemName: "slider.horizontal.3")
                     }
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
                     .padding(.vertical, 8)
                     .padding(.horizontal)
                     .background(RoundedRectangle(cornerRadius: 8).fill(Color.gray.opacity(0.1)))
@@ -131,7 +127,7 @@ struct PrintToolBarView: View {
                         .background(RoundedRectangle(cornerRadius: 8)
                             .fill(viewModel.isPreview ? Color.gray : Color.gray.opacity(0.1)))
                 }
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
                 
                 // Print Button
                 Button(action: {
@@ -141,7 +137,7 @@ struct PrintToolBarView: View {
                         .padding(10)
                         .background(RoundedRectangle(cornerRadius: 8).fill(Color.gray.opacity(0.1)))
                 }
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
             }
         }
         .padding(.horizontal)

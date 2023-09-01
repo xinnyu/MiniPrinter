@@ -56,5 +56,5 @@ class PrinterInfoModel: ObservableObject {
         self.connectionStatus = .good
     }
     
-    static let errorModel = PrinterInfoModel(connectionStatus: .error, workingStatus: .error, paperStatus: .error, battery: 0, temperature: 0)
+    static let errorModel = PrinterInfoModel(connectionStatus: .error, workingStatus: .error, paperStatus: .error, battery: 100, temperature: 100)
 }

@@ -13,7 +13,7 @@ import AlertToast
 class HomeViewModel: ObservableObject {
     static let shared = HomeViewModel()
     
-    @Published var showPrinter = false
+    @Published var showPrinter = true
     
     private init() { }
     

@@ -10,12 +10,13 @@ struct BluetoothSearchView: View {
 
     var body: some View {
         ZStack {
-            Color.white.edgesIgnoringSafeArea(.all)
-            VStack(spacing: 40) {
+            VStack(spacing: 25) {
                 SearchHeaderView()
                 DeviceListView(manager: manager)
                 SearchButtonView(manager: manager, scaleEffect: $scaleEffect, action: searchForDevices)
             }
+            .edgesIgnoringSafeArea(.all)
+            .padding()
         }.onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 searchForDevices()
@@ -34,13 +35,19 @@ struct BluetoothSearchView: View {
 
 struct SearchHeaderView: View {
     var body: some View {
-        VStack(spacing: 15) {
+        VStack(spacing: 10) {
             Text("MINI 打印机")
                 .font(.largeTitle)
                 .fontWeight(.bold)
-                .foregroundColor(Color.black)
+                .foregroundColor(Color.primary)
+            Image(systemName: "printer")
+                .resizable()
+                .font(.system(size: 80, weight: .light))
+                .scaledToFit()
+                .frame(width: 80, height: 80)
+                .foregroundColor(Color.primary)
             Text("小智&阿奇联合教学")
-                .font(.headline)
+                .font(.system(size: 15, weight: .medium))
                 .foregroundColor(Color.purple)
         }
     }

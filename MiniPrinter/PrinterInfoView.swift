@@ -24,11 +24,19 @@ struct PrinterInfoView: View {
             Spacer()
             StatusTextWithIcon(status: viewModel.paperStatus, text: "纸张")
             Spacer()
-            Text("\(viewModel.battery)%")
-                .iconBefore(systemName: "battery.100")
+            HStack(spacing: 3) {  // `spacing` 控制间距
+                Image(systemName: "battery.\(viewModel.battery)")
+                Text("\(viewModel.battery)%")
+            }
+//            Text("\(viewModel.battery)%")
+//                .iconBefore(systemName: "battery.100")
             Spacer()
-            Text("\(viewModel.temperature)°C")
-                .iconBefore(systemName: "thermometer")
+//            Text("\(viewModel.temperature)°C")
+//                .iconBefore(systemName: "thermometer")
+            HStack(spacing: 3) {  // `spacing` 控制间距
+                Image(systemName: "thermometer")
+                Text("\(viewModel.temperature)°C")
+            }
         }
         .font(.callout)
         .padding()
@@ -64,7 +72,7 @@ struct StatusTextWithIcon: View {
     }
 
     var body: some View {
-        HStack {
+        HStack(spacing: 3) {
             Text(text)
             Image(systemName: icon)
                 .foregroundColor(color)
