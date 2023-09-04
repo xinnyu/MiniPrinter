@@ -25,7 +25,7 @@ struct PrinterInfoView: View {
             StatusTextWithIcon(status: viewModel.paperStatus, text: "纸张")
             Spacer()
             HStack(spacing: 3) {  // `spacing` 控制间距
-                Image(systemName: "battery.\(viewModel.battery)")
+                Image(systemName: "battery.100")
                 Text("\(viewModel.battery)%")
             }
 //            Text("\(viewModel.battery)%")

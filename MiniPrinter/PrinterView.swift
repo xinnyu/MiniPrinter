@@ -146,7 +146,7 @@ private extension PrinterView {
     }
     
     var printToolBar: some View {
-        PrintToolBarView(viewModel: viewModel.toolBarViewModel).frame(height: 70)
+        PrintToolBarView(viewModel: viewModel.toolBarViewModel).frame(height: 90)
     }
     
     func imagePickerView(type: ImagePickerType) -> some View {

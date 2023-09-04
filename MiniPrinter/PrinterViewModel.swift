@@ -41,7 +41,7 @@ class PrinterViewModel: ObservableObject {
             self?.printImage = image
         }
         self.toolBarViewModel.imagePrintCallback = { [weak self] isOneTimePrint in
-            self?.processAndSendImageForPrinting(self?.uiImage, isOneTimePrint: isOneTimePrint)
+            self?.processAndSendImageForPrinting(self?.toolBarViewModel.previewImage, isOneTimePrint: isOneTimePrint)
         }
         toolBarViewModel.$isPreview
             .sink { [weak self] value in
@@ -71,16 +71,16 @@ class PrinterViewModel: ObservableObject {
     }
 
     private func processAndSendImageForPrinting(_ image: UIImage?, isOneTimePrint: Bool) {
+        guard infoModel.connectionStatus != .error else {
+            Toast.showError("未连接设备！")
+            return
+        }
         guard infoModel.paperStatus != .error else {
             Toast.showError("缺纸中，请换纸后再打印")
             return
         }
         guard let image = image else { return }
-        guard let value = ImageSuperHelper.convertToPrinterFormat(image: image) else {
-            Toast.showError("图片生成失败")
-            return
-        }
-        var datas = value.1
+        var datas = ImageSuperHelper.convertToDataRows(bwImage: image)
         let startPrinterCommand: [UInt8] = [0xA6, 0xA6, 0xA6, 0xA6, 0x01]
         let startPrinterData = Data(startPrinterCommand)
         datas.append(startPrinterData)
