@@ -135,7 +135,9 @@ private extension PrinterView {
                             presentingState = .imagePicker
                         }),
                         .default(Text("开始空白图片"), action: {
+                            viewModel.uiImage = nil
                             viewModel.orImage = UIImage.whiteImage(size: geometry)
+                            editModel = nil
                             presentingState = .imageEditor
                         }),
                         .cancel()
@@ -155,6 +157,7 @@ private extension PrinterView {
             .onDisappear {
                 if let image = viewModel.uiImage {
                     viewModel.orImage = image
+                    editModel = nil
 //                    isImageEditorShown = true
                 }
             }
