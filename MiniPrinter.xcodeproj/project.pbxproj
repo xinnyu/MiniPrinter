@@ -115,7 +115,7 @@
 		14F456002A8CE819006255D2 /* ImageStickerContainerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageStickerContainerView.swift; sourceTree = "<group>"; };
 		14F456012A8CE819006255D2 /* FontChooserContainerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FontChooserContainerView.swift; sourceTree = "<group>"; };
 		14F456072A8DAA75006255D2 /* WhiteImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhiteImage.swift; sourceTree = "<group>"; };
-		14F456092A8DACA3006255D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		14F456092A8DACA3006255D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8C7F36732A9A3B3000A26BC9 /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -155,17 +155,15 @@
 		1420B01E2A89B63B0048621D /* MiniPrinter */ = {
 			isa = PBXGroup;
 			children = (
+				14777F3D2AAADBF500180EED /* App */,
 				14777F3C2AAADB5800180EED /* Tools */,
 				14777F3B2AAADB4400180EED /* Toast */,
 				14777F362AAADA8600180EED /* Printer */,
 				14777F352AAADA7B00180EED /* Home */,
 				14777F342AAADA3A00180EED /* Bluetooth */,
-				14F456092A8DACA3006255D2 /* Info.plist */,
 				14F455A22A8B1CFF006255D2 /* ImageEdit */,
-				1420B01F2A89B63B0048621D /* MiniPrinterApp.swift */,
-				1420B0232A89B63D0048621D /* Assets.xcassets */,
 				1420B0252A89B63D0048621D /* Preview Content */,
-				145F0C862A9748C40004CBBD /* ContentView.swift */,
+				14777F3E2AAADC0600180EED /* Test */,
 			);
 			path = MiniPrinter;
 			sourceTree = "<group>";
@@ -258,6 +256,24 @@
 				145F0C882A98AB510004CBBD /* LongPressModifier.swift */,
 			);
 			path = Tools;
+			sourceTree = "<group>";
+		};
+		14777F3D2AAADBF500180EED /* App */ = {
+			isa = PBXGroup;
+			children = (
+				1420B01F2A89B63B0048621D /* MiniPrinterApp.swift */,
+				14F456092A8DACA3006255D2 /* Info.plist */,
+				1420B0232A89B63D0048621D /* Assets.xcassets */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		14777F3E2AAADC0600180EED /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				145F0C862A9748C40004CBBD /* ContentView.swift */,
+			);
+			path = Test;
 			sourceTree = "<group>";
 		};
 		14F455A22A8B1CFF006255D2 /* ImageEdit */ = {
