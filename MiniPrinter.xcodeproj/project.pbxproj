@@ -61,7 +61,6 @@
 		14F456032A8CE819006255D2 /* FontChooserContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F456012A8CE819006255D2 /* FontChooserContainerView.swift */; };
 		14F456062A8CE915006255D2 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 14F456052A8CE915006255D2 /* SnapKit */; };
 		14F456082A8DAA75006255D2 /* WhiteImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F456072A8DAA75006255D2 /* WhiteImage.swift */; };
-		8C7F36722A9A07DE00A26BC9 /* ImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C7F36712A9A07DE00A26BC9 /* ImageExtensions.swift */; };
 		8C7F36742A9A3B3000A26BC9 /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C7F36732A9A3B3000A26BC9 /* Toast.swift */; };
 /* End PBXBuildFile section */
 
@@ -117,7 +116,6 @@
 		14F456012A8CE819006255D2 /* FontChooserContainerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FontChooserContainerView.swift; sourceTree = "<group>"; };
 		14F456072A8DAA75006255D2 /* WhiteImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhiteImage.swift; sourceTree = "<group>"; };
 		14F456092A8DACA3006255D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		8C7F36712A9A07DE00A26BC9 /* ImageExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageExtensions.swift; sourceTree = "<group>"; };
 		8C7F36732A9A3B3000A26BC9 /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -157,28 +155,17 @@
 		1420B01E2A89B63B0048621D /* MiniPrinter */ = {
 			isa = PBXGroup;
 			children = (
+				14777F3C2AAADB5800180EED /* Tools */,
+				14777F3B2AAADB4400180EED /* Toast */,
+				14777F362AAADA8600180EED /* Printer */,
+				14777F352AAADA7B00180EED /* Home */,
+				14777F342AAADA3A00180EED /* Bluetooth */,
 				14F456092A8DACA3006255D2 /* Info.plist */,
 				14F455A22A8B1CFF006255D2 /* ImageEdit */,
 				1420B01F2A89B63B0048621D /* MiniPrinterApp.swift */,
 				1420B0232A89B63D0048621D /* Assets.xcassets */,
 				1420B0252A89B63D0048621D /* Preview Content */,
-				1420B02D2A89BD940048621D /* BluetoothSearchView.swift */,
-				14F455EB2A8B9CF8006255D2 /* HomeContainer.swift */,
-				1420B0322A89D8320048621D /* BTSearchManager.swift */,
-				14F455E02A8B6190006255D2 /* PrinterView.swift */,
-				14F455E62A8B7F0C006255D2 /* PrinterViewModel.swift */,
-				14F455E22A8B7596006255D2 /* PrinterInfoView.swift */,
-				14F455E42A8B7814006255D2 /* PrintToolBarView.swift */,
-				14F455F22A8C7969006255D2 /* PrinterModel.swift */,
-				14F455F72A8CB7C1006255D2 /* ImagePicker.swift */,
-				14F455FC2A8CC6EB006255D2 /* ZoomableImageView.swift */,
-				14F455FE2A8CC84F006255D2 /* ImageEditor.swift */,
-				14F456072A8DAA75006255D2 /* WhiteImage.swift */,
-				14C24C162A95FF95003C676F /* ImageHelper.swift */,
 				145F0C862A9748C40004CBBD /* ContentView.swift */,
-				145F0C882A98AB510004CBBD /* LongPressModifier.swift */,
-				8C7F36712A9A07DE00A26BC9 /* ImageExtensions.swift */,
-				8C7F36732A9A3B3000A26BC9 /* Toast.swift */,
 			);
 			path = MiniPrinter;
 			sourceTree = "<group>";
@@ -189,6 +176,88 @@
 				1420B0262A89B63D0048621D /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		14777F342AAADA3A00180EED /* Bluetooth */ = {
+			isa = PBXGroup;
+			children = (
+				1420B0322A89D8320048621D /* BTSearchManager.swift */,
+				1420B02D2A89BD940048621D /* BluetoothSearchView.swift */,
+			);
+			path = Bluetooth;
+			sourceTree = "<group>";
+		};
+		14777F352AAADA7B00180EED /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				14F455EB2A8B9CF8006255D2 /* HomeContainer.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		14777F362AAADA8600180EED /* Printer */ = {
+			isa = PBXGroup;
+			children = (
+				14777F3A2AAADB1B00180EED /* Model */,
+				14777F382AAADAA600180EED /* ViewModel */,
+				14777F372AAADA9A00180EED /* View */,
+			);
+			path = Printer;
+			sourceTree = "<group>";
+		};
+		14777F372AAADA9A00180EED /* View */ = {
+			isa = PBXGroup;
+			children = (
+				14F455E02A8B6190006255D2 /* PrinterView.swift */,
+				14F455E22A8B7596006255D2 /* PrinterInfoView.swift */,
+				14F455E42A8B7814006255D2 /* PrintToolBarView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		14777F382AAADAA600180EED /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				14F455E62A8B7F0C006255D2 /* PrinterViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		14777F392AAADAC700180EED /* ImageTools */ = {
+			isa = PBXGroup;
+			children = (
+				14F455FE2A8CC84F006255D2 /* ImageEditor.swift */,
+				14F455F72A8CB7C1006255D2 /* ImagePicker.swift */,
+				14F456072A8DAA75006255D2 /* WhiteImage.swift */,
+				14C24C162A95FF95003C676F /* ImageHelper.swift */,
+				14F455FC2A8CC6EB006255D2 /* ZoomableImageView.swift */,
+			);
+			path = ImageTools;
+			sourceTree = "<group>";
+		};
+		14777F3A2AAADB1B00180EED /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				14F455F22A8C7969006255D2 /* PrinterModel.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		14777F3B2AAADB4400180EED /* Toast */ = {
+			isa = PBXGroup;
+			children = (
+				8C7F36732A9A3B3000A26BC9 /* Toast.swift */,
+			);
+			path = Toast;
+			sourceTree = "<group>";
+		};
+		14777F3C2AAADB5800180EED /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				14777F392AAADAC700180EED /* ImageTools */,
+				145F0C882A98AB510004CBBD /* LongPressModifier.swift */,
+			);
+			path = Tools;
 			sourceTree = "<group>";
 		};
 		14F455A22A8B1CFF006255D2 /* ImageEdit */ = {
@@ -374,7 +443,6 @@
 				14F455DB2A8B1CFF006255D2 /* Bundle+ZLImageEditor.swift in Sources */,
 				14F455DC2A8B1CFF006255D2 /* UIColor+ZLImageEditor.swift in Sources */,
 				14F455C92A8B1CFF006255D2 /* ZLAdjustSlider.swift in Sources */,
-				8C7F36722A9A07DE00A26BC9 /* ImageExtensions.swift in Sources */,
 				1420B0332A89D8320048621D /* BTSearchManager.swift in Sources */,
 				14F455CD2A8B1CFF006255D2 /* ZLImageEditor.swift in Sources */,
 				145F0C892A98AB510004CBBD /* LongPressModifier.swift in Sources */,
