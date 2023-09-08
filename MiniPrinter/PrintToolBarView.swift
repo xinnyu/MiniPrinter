@@ -119,7 +119,6 @@ struct PrintToolBarView: View {
             HStack(spacing: 15) {
                 // Text Mode Checkbox
                 Toggle("文本模式", isOn: $viewModel.isTextMode)
-                    .frame(width: 82)
                     .toggleStyle(CheckboxToggleStyle())
                     .padding(.leading, 8)
                 if viewModel.isPreview {
@@ -217,7 +216,7 @@ struct CheckboxToggleStyle: ToggleStyle {
     func makeBody(configuration: Self.Configuration) -> some View {
         HStack {
             configuration.label
-            Spacer()
+            Spacer().frame(width: 8)
             Image(systemName: configuration.isOn ? "checkmark.square" : "square")
                 .onTapGesture { configuration.isOn.toggle() }
         }
