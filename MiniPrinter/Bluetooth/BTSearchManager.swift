@@ -10,11 +10,39 @@ import CoreBluetooth
 import Combine
 import SwiftUI
 
+extension UserDefaults {
+    static let selectedDeviceTypeKey = "selectedDeviceTypeKey"
+}
+
 struct BTMacro {
-    static let serviceUUID = CBUUID(string: "4fafc201-1fb5-459e-8fcc-c5c9c331914b")
-    static let characteristicUUID = CBUUID(string: "beb5483e-36e1-4688-b7f5-ea07361b26a8")
     static let deviceName = "Mini-Printer"
     static let searchSeconds = 5
+}
+
+enum ChipType: String {
+    case STM32
+    case ESP32
+    
+    var serviceUUID: CBUUID {
+        if self == .STM32 {
+            return CBUUID(string: "6E400001-B5A3-F393-E0A9-E50E24DCCA9E")
+        }
+        return CBUUID(string: "4fafc201-1fb5-459e-8fcc-c5c9c331914b")
+    }
+    
+    var characteristicUUID: CBUUID {
+        if self == .STM32 {
+            return CBUUID(string: "6E400002-B5A3-F393-E0A9-E50E24DCCA9E")
+        }
+        return CBUUID(string: "beb5483e-36e1-4688-b7f5-ea07361b26a8")
+    }
+    
+    var notifyCharacteristicUUID: CBUUID {
+        if self == .STM32 {
+            return CBUUID(string: "6E400003-B5A3-F393-E0A9-E50E24DCCA9E")
+        }
+        return CBUUID(string: "beb5483e-36e1-4688-b7f5-ea07361b26a8")
+    }
 }
 
 extension CBPeripheral {
@@ -55,7 +83,6 @@ class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate,
     
     let dataSubject = CurrentValueSubject<Data?, Never>(nil)
     
-    
     @Published var connectionStatus: ConnectionStatus = .none
 
     @Published private(set) var discoveredPeripherals: [CBPeripheral] = []
@@ -63,7 +90,12 @@ class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate,
     @Published var isSearching = false
     @Published var remainingSeconds = BTMacro.searchSeconds
     @Published var distanceDict = [UUID : Double]()
+    @Published var selectedDeviceType: String = UserDefaults.standard.string(forKey: UserDefaults.selectedDeviceTypeKey) ?? "ESP32"
     
+    var chipType: ChipType {
+        return ChipType(rawValue: selectedDeviceType) ?? .ESP32
+    }
+
     private var sendDataSemaphore: DispatchSemaphore?
     private var queue = DispatchQueue(label: "com.miniPrinter.bluetoothSendQueue")
     private var centralManager: CBCentralManager!
@@ -77,6 +109,11 @@ class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate,
     private override init() {
         super.init()
         centralManager = CBCentralManager(delegate: self, queue: nil)
+    }
+    
+    func setSelectedDeviceType(_ type: String) {
+        selectedDeviceType = type
+        UserDefaults.standard.setValue(type, forKey: UserDefaults.selectedDeviceTypeKey)
     }
 
     // 将数据数组发送给指定的特征
@@ -224,7 +261,7 @@ extension BTSearchManager {
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         // 开始发现指定的服务，如果您不确定要发现的服务的UUID，可以传递nil来发现所有服务
         connectionStatus = .connected
-        peripheral.discoverServices([BTMacro.serviceUUID])
+        peripheral.discoverServices([chipType.serviceUUID])
         NotificationCenter.default.post(name: BTSearchManager.connectionStateDidChangeNotification, object: peripheral)
     }
 
@@ -251,7 +288,7 @@ extension BTSearchManager {
         }
         peripheral.services?.forEach { service in
             print("Found service: \(service)")
-            if service.uuid == BTMacro.serviceUUID {
+            if service.uuid == chipType.serviceUUID {
                 // 对于每个服务，发现它的特征
                 peripheral.discoverCharacteristics(nil, for: service)
             }
@@ -262,8 +299,7 @@ extension BTSearchManager {
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         for characteristic in service.characteristics! {
             print("Found characteristic: \(characteristic)")
-            if characteristic.uuid == BTMacro.characteristicUUID {
-                self.writeCharacteristic = characteristic
+            if characteristic.uuid == chipType.notifyCharacteristicUUID {
                 // 如果这是您想读取的特征，或者您想监听的特征
                 if characteristic.properties.contains(.read) {
                     // 读取特征的值
@@ -274,12 +310,15 @@ extension BTSearchManager {
                     peripheral.setNotifyValue(true, for: characteristic)
                 }
             }
+            if characteristic.uuid == chipType.characteristicUUID {
+                self.writeCharacteristic = characteristic
+            }
         }
     }
     
     // 当读取特征值或监听到特征值改变时调用
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        if let data = characteristic.value, characteristic.uuid == BTMacro.characteristicUUID {
+        if let data = characteristic.value, characteristic.uuid == chipType.notifyCharacteristicUUID {
             // 对数据进行处理, 只有读取到了值才算连接成功
             connectedPeripheral = peripheral
             connectionStatus = .connected

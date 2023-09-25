@@ -375,11 +375,12 @@
 			};
 			buildConfigurationList = 1420B0172A89B63B0048621D /* Build configuration list for PBXProject "MiniPrinter" */;
 			compatibilityVersion = "Xcode 14.0";
-			developmentRegion = en;
+			developmentRegion = "zh-Hans";
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
 			);
 			mainGroup = 1420B0132A89B63B0048621D;
 			packageReferences = (

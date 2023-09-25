@@ -7,17 +7,30 @@ import PopupView
 struct BluetoothSearchView: View {
     @ObservedObject var manager = BTSearchManager.default
     @State private var scaleEffect: CGFloat = 1.0
-
+    @State private var selectedDeviceType: String = UserDefaults.standard.string(forKey: UserDefaults.selectedDeviceTypeKey) ?? "ESP32"
+    
     var body: some View {
         ZStack {
             VStack(spacing: 25) {
                 SearchHeaderView()
                 DeviceListView(manager: manager)
+                Menu {
+                    Button("STM32", action: {
+                        manager.setSelectedDeviceType("STM32")
+                    })
+                    Button("ESP32", action: {
+                        manager.setSelectedDeviceType("ESP32")
+                    })
+                } label: {
+                    Label("芯片类型: \(manager.selectedDeviceType)", systemImage: "gearshape.fill")
+                        .font(.title2).opacity(0.9)
+                }
                 SearchButtonView(manager: manager, scaleEffect: $scaleEffect, action: searchForDevices)
             }
             .edgesIgnoringSafeArea(.all)
             .padding()
-        }.onAppear {
+        }
+        .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 searchForDevices()
             }
@@ -32,6 +45,7 @@ struct BluetoothSearchView: View {
         }
     }
 }
+
 
 struct SearchHeaderView: View {
     var body: some View {
