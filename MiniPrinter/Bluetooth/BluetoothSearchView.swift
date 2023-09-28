@@ -51,12 +51,11 @@ struct SearchHeaderView: View {
     var body: some View {
         VStack(spacing: 10) {
             Text("MINI 打印机")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+                .font(.title)
+                .fontWeight(.medium)
                 .foregroundColor(Color.primary)
-            Image(systemName: "printer")
+            Image("printer")
                 .resizable()
-                .font(.system(size: 80, weight: .light))
                 .scaledToFit()
                 .frame(width: 80, height: 80)
                 .foregroundColor(Color.primary)
