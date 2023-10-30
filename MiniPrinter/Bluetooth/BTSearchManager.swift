@@ -134,7 +134,7 @@ class BTSearchManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate,
         queue.async {
             for data in datas {
                 self.sendDataWithoutResponse(data: data)
-                Thread.sleep(forTimeInterval: 0.01)
+                Thread.sleep(forTimeInterval: self.chipType == .ESP32 ? 0.01 : 0.02)
             }
             DispatchQueue.main.async {
                 completion()
